@@ -30,6 +30,7 @@ NSString* const RMSKDownloadFailed = @"RMSKDownloadFailed";
 NSString* const RMSKDownloadFinished = @"RMSKDownloadFinished";
 NSString* const RMSKDownloadPaused = @"RMSKDownloadPaused";
 NSString* const RMSKDownloadUpdated = @"RMSKDownloadUpdated";
+NSString* const RMSKPaymentTransactionPurchasing = @"RMSKPaymentTransactionPurchasing";
 NSString* const RMSKPaymentTransactionDeferred = @"RMSKPaymentTransactionDeferred";
 NSString* const RMSKPaymentTransactionFailed = @"RMSKPaymentTransactionFailed";
 NSString* const RMSKPaymentTransactionFinished = @"RMSKPaymentTransactionFinished";
@@ -325,6 +326,7 @@ typedef void (^RMStoreSuccessBlock)();
     [self addStoreObserver:observer selector:@selector(storeDownloadUpdated:) notificationName:RMSKDownloadUpdated];
     [self addStoreObserver:observer selector:@selector(storeProductsRequestFailed:) notificationName:RMSKProductsRequestFailed];
     [self addStoreObserver:observer selector:@selector(storeProductsRequestFinished:) notificationName:RMSKProductsRequestFinished];
+    [self addStoreObserver:observer selector:@selector(storePaymentTransactionPurchasing:) notificationName:RMSKPaymentTransactionPurchasing];
     [self addStoreObserver:observer selector:@selector(storePaymentTransactionDeferred:) notificationName:RMSKPaymentTransactionDeferred];
     [self addStoreObserver:observer selector:@selector(storePaymentTransactionFailed:) notificationName:RMSKPaymentTransactionFailed];
     [self addStoreObserver:observer selector:@selector(storePaymentTransactionFinished:) notificationName:RMSKPaymentTransactionFinished];
@@ -343,6 +345,7 @@ typedef void (^RMStoreSuccessBlock)();
     [[NSNotificationCenter defaultCenter] removeObserver:observer name:RMSKDownloadUpdated object:self];
     [[NSNotificationCenter defaultCenter] removeObserver:observer name:RMSKProductsRequestFailed object:self];
     [[NSNotificationCenter defaultCenter] removeObserver:observer name:RMSKProductsRequestFinished object:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:observer name:RMSKPaymentTransactionPurchasing object:self];
     [[NSNotificationCenter defaultCenter] removeObserver:observer name:RMSKPaymentTransactionDeferred object:self];
     [[NSNotificationCenter defaultCenter] removeObserver:observer name:RMSKPaymentTransactionFailed object:self];
     [[NSNotificationCenter defaultCenter] removeObserver:observer name:RMSKPaymentTransactionFinished object:self];
@@ -370,6 +373,9 @@ typedef void (^RMStoreSuccessBlock)();
     {
         switch (transaction.transactionState)
         {
+            case SKPaymentTransactionStatePurchasing:
+                [self isPurchasingTransaction:transaction queue:queue];
+                break;
             case SKPaymentTransactionStatePurchased:
                 [self didPurchaseTransaction:transaction queue:queue];
                 break;
@@ -521,6 +527,13 @@ typedef void (^RMStoreSuccessBlock)();
 }
 
 #pragma mark Transaction State
+
+
+- (void)isPurchasingTransaction:(SKPaymentTransaction *)transaction queue:(SKPaymentQueue*)queue
+{
+    [self postNotificationWithName:RMSKPaymentTransactionPurchasing transaction:transaction userInfoExtras:nil];
+}
+
 
 - (void)didPurchaseTransaction:(SKPaymentTransaction *)transaction queue:(SKPaymentQueue*)queue
 {
