@@ -137,6 +137,8 @@ typedef void (^RMStoreSuccessBlock)();
     
     NSMutableArray *_restoredTransactions;
     
+    NSMutableArray *_storedStorePayments;
+    
     NSInteger _pendingRestoredTransactionsCount;
     BOOL _restoredCompletedTransactionsFinished;
     
@@ -156,6 +158,7 @@ typedef void (^RMStoreSuccessBlock)();
         _products = [NSMutableDictionary dictionary];
         _productsRequestDelegates = [NSMutableSet set];
         _restoredTransactions = [NSMutableArray array];
+        _storedStorePayments = [NSMutableArray array];
         [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     }
     return self;
@@ -181,6 +184,14 @@ typedef void (^RMStoreSuccessBlock)();
 + (BOOL)canMakePayments
 {
     return [SKPaymentQueue canMakePayments];
+}
+
+- (void)acceptStoredStorePayments
+{
+    for (SKPayment *payment in _storedStorePayments) {
+        [[SKPaymentQueue defaultQueue] addPayment:payment];
+    }
+    [_storedStorePayments removeAllObjects];
 }
 
 - (void)addPayment:(NSString*)productIdentifier
@@ -445,6 +456,19 @@ typedef void (^RMStoreSuccessBlock)();
         }
     }
 }
+
+#if defined(__IPHONE_11_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_11_0)
+- (BOOL)paymentQueue:(SKPaymentQueue *)queue shouldAddStorePayment:(SKPayment *)payment forProduct:(SKProduct *)product
+{
+    if (self.storePaymentAcceptor == nil || ![self.storePaymentAcceptor acceptStorePayment:payment fromQueue:queue forProduct:product])
+    {
+        [_storedStorePayments addObject:payment];
+        return NO;
+    } else {
+        return YES;
+    }
+}
+#endif
 
 #pragma mark Download State
 
