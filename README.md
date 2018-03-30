@@ -275,7 +275,7 @@ iOS 11 added support for users to purchase in-app purchases through the App Stor
 ### RMStoreStorePaymentAcceptor
 RMStore uses `RMStoreStorePaymentAcceptor` to determine whether or not the store payment should be added to the payment queue (accepted). If you **don't** provide a `RMStoreStorePaymentAcceptor`, any store payment received by RMStore will **not** be added to the payment queue (accepted) and will be stored, allwoing it to be added to the payment queue later.
 
-If you provide your own `RMStoreStorePaymentAcceptor` and return `NO` from `acceptStorePayment:`, the store payment will also be stored by RMStore. If you return `YES`, the system will to add the store payment to the payment queue.
+If you provide your own `RMStoreStorePaymentAcceptor` and return `NO` from `acceptStorePayment:`, the store payment will also be stored by RMStore. If you return `YES`, the system will add the store payment to the payment queue.
 
 ```objective-c
 @protocol RMStoreStorePaymentAcceptor
@@ -285,7 +285,7 @@ If you provide your own `RMStoreStorePaymentAcceptor` and return `NO` from `acce
 @end
 ```
 
-### Accepintg Stored Payments
+### Accepting Stored Payments
 When your app is ready to add the stored store payments to the payment queue, use the `acceptStoredStorePayments` method on RMStore.
 
 ```objective-c
